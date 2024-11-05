@@ -1,0 +1,236 @@
+@import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;1,600&family=Rubik+Iso&display=swap");
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Hanken Grotesk", sans-serif;
+  letter-spacing: 1px;
+}
+
+:root {
+  --mainColor: #29335c;
+  --mainColorLight: #5767aa;
+  --secondaryColor: #db2b39;
+  --textColor: #eee;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+  padding: 0 2rem;
+  background-color: var(--mainColor);
+  color: var(--textColor);
+}
+
+.head-logo {
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--textColor);
+    /* font-family: 'Tourney', cursive; */
+    font-size: 28px;
+    font-weight: 600;
+}
+
+nav a {
+  margin: 0 1rem;
+  color: var(--textColor);
+  text-decoration: none;
+}
+
+nav a:hover {
+  color: var(--secondaryColor);
+}
+
+header .nav-btn {
+  padding: 5px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--textColor);
+  visibility: hidden;
+  opacity: 0;
+  font-size: 1.8rem;
+}
+
+header div,
+nav {
+  display: flex;
+  align-items: center;
+}
+
+/* .footer{
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+} */
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  font-size: 30px;
+  text-align: center;
+  background-color: var(--mainColor);
+  height: 100%;
+}
+.flex-container h4{
+	color: var(--textColor);
+	font-family: 'Rubik Iso', cursive;
+}
+.flex-container p, a{
+	color: var(--textColor);
+	font-size: 18px;
+	text-decoration: none;
+	margin-bottom: 5px;
+}
+.flex-container a:hover{
+	color: var(--secondaryColor);
+}
+.flex-item-left {
+  padding: 10px;
+  flex: 30%;
+}
+
+.flex-item-right {
+  padding: 10px;
+  flex: 30%;
+}
+
+.flex-item-middle {
+  padding: 10px;
+  flex: 30%;
+}
+
+.footer-below {
+  display: flex;
+  justify-content: center;
+  font-size: 18px;
+  background-color: var(--mainColorLight);
+  height: 50px;
+}
+
+.footer-below p{
+	margin-top: 10px;
+	color: var(--textColor);
+}
+.searchCard{
+  font-size: 19px;
+  background-image: url('../Styles/image/foto-hotel.jpg');
+  width: 100%;
+  background-size: cover;
+  padding: 90px;
+  border-radius: 40px;
+}
+
+.searchSmalllCard{
+  background-image: url('../Styles/image/foto-hotel.jpg');
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: auto;
+}
+
+.container {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.searchCard h3, h5{
+  font-weight: normal;
+}
+.searchCard h3{
+  font-size: 30px;
+}
+.searchCard h5{
+  font-size: 18px;
+}
+.cardContainer{
+  border-radius: 30px;
+}
+.ant-form-item-label>label {
+  font-size: 16px !important; /* Adjust the size as needed */
+  font-weight: normal;
+  color: #333; /* Adjust the color as needed */
+}
+.scrollable-img {
+  white-space: nowrap;
+  overflow-x: auto;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.scrollable-img img {
+  display: inline-block;
+  height: 150px; /* Adjust the height as needed */
+  margin-right: 10px; /* Space between images */
+}
+
+:where(.css-dev-only-do-not-override-m4timi).ant-card .ant-card-grid{
+  border: none;
+  box-shadow: none;
+}
+@media only screen and (max-width: 1024px) {
+  header .nav-btn {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  header nav {
+    position: fixed;
+    top: -100vh;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    background-color: var(--mainColor);
+    transition: 1s;
+  }
+
+  header .responsive_nav {
+    transform: translateY(100vh);
+    height: 100%;
+    position: fixed;
+  }
+
+  .footer{
+    z-index: -5;
+  }
+  .searchCard{
+    z-index: -1;
+  }
+  nav .nav-close-btn {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+  }
+
+  nav a {
+    font-size: 1.5rem;
+  }
+}
+@media (min-width: 992px) {
+  .container {
+      max-width: 98%;
+  }
+}
+@media (max-width: 768px) {
+  .container {
+      max-width: 720px;
+  }
+}
+@media (max-width: 576px) {
+  .container {
+      max-width: 540px;
+  }
+}
+
