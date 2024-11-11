@@ -15,23 +15,30 @@ headers = {
 
 def getHotels(entityID, checkin, checkout, guests, room):
     url = "https://sky-scrapper.p.rapidapi.com/api/v1/hotels/searchHotels"
-    querystring = {"entityId":entityID,"checkin":checkin,"checkout":checkout,"adults":guests,"rooms":room,"limit":"30","sorting":"-relevance","currency":"IDR","market":"en-US","countryCode":"ID"}
+    querystring = {"entityId":entityID,"checkin":checkin,"checkout":checkout,"adults":guests,"rooms":room,"limit":"20","sorting":"-relevance","currency":"IDR","market":"en-US","countryCode":"ID"}
     response = requests.get(url, headers=headers, params=querystring)
-    
+    print("get data hotel")
+    return response.json()
+
+def getPlaces(places):
+    url = "https://sky-scrapper.p.rapidapi.com/api/v1/hotels/searchDestinationOrHotel"
+    querystring = {"query":places}
+    response = requests.get(url, headers=headers, params=querystring)
     return response.json()
 
 def getDetail(hotelID, entityID):
     url = "https://sky-scrapper.p.rapidapi.com/api/v1/hotels/getHotelDetails"
     querystring = {"hotelId":hotelID,"entityId":entityID,"currency":"IDR","market":"en-US","countryCode":"ID"}           
     response = requests.get(url, headers=headers, params=querystring)
+    print("get data detail")
     return response.json()
 
 def getNearbyPlaces(hotelID, cityID, coordinates):
     url = "https://sky-scrapper.p.rapidapi.com/api/v1/hotels/nearbyMap"
     querystring = {"cityId":cityID,"latitude":coordinates[1],"longitude":coordinates[0],"currency":"IDR","market":"en-US","countryCode":"ID"}   
     response = requests.get(url, headers=headers, params=querystring)
+    print("get data nearby")
     return response.json()
-
 
 educations = ['Museum','School','Cultural Center','Aquarium']
 business = ['Government building','Modern architecture']
@@ -57,6 +64,7 @@ def extract_distances_and_check_kids(landmarks_text):
         else:
             kidsfr.append(0)
     return kidsfr
+
 def extract_distances_and_check_shop(landmarks_text):
     shopping = []
     for landmark in landmarks_text:
@@ -65,6 +73,7 @@ def extract_distances_and_check_shop(landmarks_text):
         else:
             shopping.append(0)
     return shopping
+
 def extract_distances_and_check_shops(landmarks_text):
     shopping = []
     for landmark in landmarks_text:
@@ -73,6 +82,7 @@ def extract_distances_and_check_shops(landmarks_text):
         else:
             shopping.append(0)
     return shopping
+
 def extract_distances_and_check_religi(landmarks_text):
     religi = []
     for landmark in landmarks_text:
@@ -81,6 +91,7 @@ def extract_distances_and_check_religi(landmarks_text):
         else:
             religi.append(0)
     return religi
+
 def extract_distances_and_check_religis(landmarks_text):
     religi = []
     for landmark in landmarks_text:
@@ -89,6 +100,7 @@ def extract_distances_and_check_religis(landmarks_text):
         else:
             religi.append(0)
     return religi
+
 def extract_distances_and_check_education(landmarks_text):
     education = []    
     for landmark in landmarks_text:
@@ -97,6 +109,7 @@ def extract_distances_and_check_education(landmarks_text):
         else:
             education.append(0)
     return education
+
 def extract_distances_and_check_educations(landmarks_text):
     education = []    
     for landmark in landmarks_text:
@@ -105,6 +118,7 @@ def extract_distances_and_check_educations(landmarks_text):
         else:
             education.append(0)
     return education
+
 def extract_distances_and_check_historical(landmarks_text):
     historical = []
     for landmark in landmarks_text:
@@ -122,6 +136,7 @@ def extract_distances_and_check_nature(landmarks_text):
         else:
             nature.append(0)
     return nature
+
 def extract_distances_and_check_transit(landmarks_text):
     transit = []
     for landmark in landmarks_text:
@@ -162,6 +177,8 @@ def dataNilai(data, preferensi = ''):
         })
         df = pd.DataFrame(data['nilai'])
         data['nilai'] = df
+        
+    print("data nilai")
 
     return data
 
@@ -261,7 +278,6 @@ def skyline(df, preferensi=None, filter=None):
         else:
             data.sort_values(by=['rating_value'], ascending=[False], inplace=True)
         return data
-    
     
 def nmf_process(filtered_and_sorted_, tujuan=''):
     num_latent_factors = 5
