@@ -1,16 +1,18 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { Button, Checkbox, Col, Form, Row, Slider } from "antd";
+import { StarFilled } from "@ant-design/icons";
 import Grid from "antd/es/card/Grid";
 import Card from "antd/es/card/Card";
 import Meta from "antd/es/card/Meta";
-import { formatMoney } from "../utils/MoneyFormatter";
 import axios from "axios";
 
 function HotelList() {
   const location = useLocation();
   const jsonString = JSON.stringify(location.state?.data);
   const formData = JSON.parse(jsonString);
+  console.log(formData);
+  const [form] = Form.useForm();
   const [filterData, setFilterData] = useState(formData);
   const navigate = useNavigate();
   const initialValue = {
@@ -46,34 +48,35 @@ function HotelList() {
   }
 
   const filterSubmit = () => {
-    let filtered = filterData.filter(
-      (filters) =>
-        filters.hotelPrice >= customPayload["prices"][0] &&
-        filters.hotelPrice <= customPayload["prices"][1] &&
-        filters.distances >= customPayload["distances"][0] &&
-        filters.distances <= customPayload["distances"][1]
-    );
-    if (customPayload["facility"].length > 0) {
-      filtered = filtered.filter((filters) =>
-        arrayContainsAnySubstring(
-          JSON.parse(
-            filters.fasilitas.replace(/'/g, '"').replace(/\\x96/g, "-")
-          ),
-          customPayload["facility"]
-        )
-      );
-    }
-    if (customPayload["spec_facility"].length > 0) {
-      filtered = filtered.filter((filters) =>
-        arrayContainsAnySubstring(
-          JSON.parse(
-            filters.fasilitas.replace(/'/g, '"').replace(/\\x96/g, "-")
-          ),
-          customPayload["spec_facility"]
-        )
-      );
-    }
-    setFilterData(filtered);
+    console.log(form.getFieldsValue())
+    // let filtered = filterData.filter(
+    //   (filters) =>
+    //     filters.hotelPrice >= customPayload["prices"][0] &&
+    //     filters.hotelPrice <= customPayload["prices"][1] &&
+    //     filters.distances >= customPayload["distances"][0] &&
+    //     filters.distances <= customPayload["distances"][1]
+    // );
+    // if (customPayload["facility"].length > 0) {
+    //   filtered = filtered.filter((filters) =>
+    //     arrayContainsAnySubstring(
+    //       JSON.parse(
+    //         filters.fasilitas.replace(/'/g, '"').replace(/\\x96/g, "-")
+    //       ),
+    //       customPayload["facility"]
+    //     )
+    //   );
+    // }
+    // if (customPayload["spec_facility"].length > 0) {
+    //   filtered = filtered.filter((filters) =>
+    //     arrayContainsAnySubstring(
+    //       JSON.parse(
+    //         filters.fasilitas.replace(/'/g, '"').replace(/\\x96/g, "-")
+    //       ),
+    //       customPayload["spec_facility"]
+    //     )
+    //   );
+    // }
+    // setFilterData(filtered);
   };
   const resetFilter = () => {
     setFilterData(formData);
@@ -88,11 +91,35 @@ function HotelList() {
       const hotelPrice = await axios.get("http://localhost:5000/detailPrice", {
         params: { hotelId: e },
       });
-      navigate("/DetailHotel", { state: {detailHotel: detailHotel.data, detailPrice: hotelPrice.data} });
-      
+      navigate("/DetailHotel", {
+        state: { detailHotel: detailHotel.data, detailPrice: hotelPrice.data },
+      });
     } catch (error) {
       console.error("There was an error submitting the form!", error);
     }
+  };
+
+  const RatingComponent = ({ rating, totalStars = 5 }) => {
+    // Loop through the number of stars based on the rating
+    const stars = [];
+    for (let i = 0; i < rating; i++) {
+      stars.push(<StarFilled key={i} style={{ color: "#FFD700" }} />); // Add filled stars
+    }
+
+    // Optionally add empty stars if you want to show the full set (e.g., 5 stars total)
+    for (let i = rating; i < totalStars; i++) {
+      stars.push(<StarFilled key={i} style={{ color: "#D3D3D3" }} />); // You can use a different color for empty stars
+    }
+
+    return <div>{stars}</div>;
+  };
+
+  const formatNumber = (value) => {
+    const formatter = new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+    });    
+    return formatter.format(value);  // Format as currency (e.g., $20.00)
   };
 
   return (
@@ -102,7 +129,7 @@ function HotelList() {
         {/* container for filter */}
         <Card bordered={false}>
           <br />
-          <Form labelWrap wrapperCol={{ flex: 1 }} style={{ margin: 10 }}>
+          <Form labelWrap wrapperCol={{ flex: 1 }} style={{ margin: 10 }} form={form}>
             {customPayload !== null && (
               <Button type="secondary" onClick={resetFilter}>
                 Reset Filter
@@ -116,10 +143,10 @@ function HotelList() {
             >
               <Slider
                 range
-                defaultValue={[100000, 3000000]}
-                tooltip={{ open: true }}
+                defaultValue={[100000, 200000]}
+                tooltip={{ open: true, formatter: formatNumber }}
                 min={0}
-                max={5000000}
+                max={2500000}
                 onChange={(event) => onValueChange("prices", event)}
               />
             </Form.Item>
@@ -316,15 +343,101 @@ function HotelList() {
                   <Card
                     bordered={false}
                     className="hotelsCard"
-                    cover={<img src={data?.hotelImage} alt="hotels" />}
+                    cover={
+                      <img
+                        src={data?.heroImage}
+                        alt="hotels"
+                        style={{ height: "200px" }}
+                      />
+                    }
                     onClick={(event) => goToDetail(event, data?.hotelId)}
                   >
                     <Meta
                       title={data?.name}
                       description={
                         <>
-                          <h1>hahahi</h1>
-                          <p>{formatMoney(data?.hotelPrice)}</p>
+                          <h5>{data?.distance}</h5>
+                          <p style={{ fontWeight: "bold", color: "red" }}>
+                            <Row gutter={[8, 8]}>
+                              <Col span={16}>{data?.price}</Col>
+                              <Col span={8}>
+                                <RatingComponent
+                                  rating={data?.stars}
+                                  totalStars={5}
+                                />
+                              </Col>
+                            </Row>
+                          </p>
+                          <p>
+                            Near To:
+                            <Row gutter={[5, 5, 5, 5, 5, 5, 5]}>
+                              {data?.isNature === 1 && (
+                                <Col>
+                                  <Button
+                                    style={{
+                                      backgroundColor: "#32CD32",
+                                      borderColor: "#32CD32",
+                                      color: "#fff",
+                                    }}
+                                  >
+                                    Nature
+                                  </Button>
+                                </Col>
+                              )}
+                              {data?.isEducation === 1 && (
+                                <Col>
+                                  <Button
+                                    style={{
+                                      backgroundColor: "#3B82F6",
+                                      borderColor: "#3B82F6",
+                                      color: "#fff",
+                                    }}
+                                  >
+                                    Education
+                                  </Button>
+                                </Col>
+                              )}
+                              {data?.isShopping === 1 && (
+                                <Col>
+                                  <Button
+                                    style={{
+                                      backgroundColor: "#D32F2F ",
+                                      borderColor: "#D32F2F ",
+                                      color: "#fff",
+                                    }}
+                                  >
+                                    Shopping
+                                  </Button>
+                                </Col>
+                              )}
+                              {data?.isReligi === 1 && (
+                                <Col>
+                                  <Button
+                                    style={{
+                                      backgroundColor: "#9C27B0",
+                                      borderColor: "#9C27B0",
+                                      color: "#fff",
+                                    }}
+                                  >
+                                    Place to Worship
+                                  </Button>
+                                </Col>
+                              )}
+                              {data?.isTransit === 1 && (
+                                <Col>
+                                  <Button
+                                    style={{
+                                      backgroundColor: "#FFEB3B",
+                                      borderColor: "#FFEB3B",
+                                      color: "#000",
+                                    }}
+                                  >
+                                    Transport Access
+                                  </Button>
+                                </Col>
+                              )}
+                            </Row>
+                          </p>
                         </>
                       }
                     />

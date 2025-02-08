@@ -9,14 +9,14 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MinMaxScaler, normalize
 
 headers = {
-    "x-rapidapi-key": "b6b5149870msh0fcb34678020bb0p1ae318jsn96ed84cba5ed",
-    "x-rapidapi-host": "sky-scrapper.p.rapidapi.com"
+	"x-rapidapi-key": "67d25b9c64mshf42b875e54de967p1533d7jsnbd691e17fde6",
+	"x-rapidapi-host": "sky-scrapper.p.rapidapi.com"
 }
 
 def getHotels(entityID, checkin, checkout, guests, room):
     url = "https://sky-scrapper.p.rapidapi.com/api/v1/hotels/searchHotels"
-    querystring = {"entityId":entityID,"checkin":checkin,"checkout":checkout,"adults":guests,"rooms":room,"limit":"20","sorting":"-relevance","currency":"IDR","market":"en-US","countryCode":"ID"}
-    response = requests.get(url, headers=headers, params=querystring)
+    querystring = {"entityId":entityID,"checkin":checkin,"checkout":checkout,"adults":guests,"rooms":room,"limit":"15","sorting":"-relevance","currency":"IDR","market":"en-US","countryCode":"ID"}
+    response = requests.get(url, headers=headers, params=querystring)    
     print("get data hotel")
     return response.json()
 
@@ -146,7 +146,7 @@ def extract_distances_and_check_transit(landmarks_text):
             transit.append(0)
     return transit
 
-def dataNilai(data, preferensi = ''):    
+def dataNilai(data, preferensi = ''):
     data['nilai'] = 0
     business_list = ['business center','meeting room','meeting','hall','fax','wifi','internet','restaurant','rental car','laundry','desk','room service','shuttle service']
     leisure_list = ['pool','spa','concierge','entertainment','restaurant','coffee shop','laundry','rental car']
@@ -178,21 +178,36 @@ def dataNilai(data, preferensi = ''):
         df = pd.DataFrame(data['nilai'])
         data['nilai'] = df
         
-    print("data nilai")
+    print("data nilai", data)
 
     return data
 
 def is_dominated(item1, item2):
-    if 'price' in item1 and 'price' in item2:
-        if item1['rating_value'] > item2['rating_value'] and item1['rawPrice'] < item2['rawPrice'] and item1['value'] > item2['value'] and item1['nilai'] > item2['nilai']:
-            return True
-    else:
-        if item1['rating_value'] > item2['rating_value'] and item1['value'] > item2['value'] and item1['nilai'] > item2['nilai']:
-            return True
+    if item1 is None or item2 is None:
+        return False
+    else:        
+        if 'price' in item1 and 'price' in item2:
+            if item1['rating_value'] > item2['rating_value'] and item1['rawPrice'] < item2['rawPrice'] and item1['value'] > item2['value'] and item1['nilai'] > item2['nilai']:
+                return True
+        else:
+            if item1['rating_value'] > item2['rating_value'] and item1['value'] > item2['value'] and item1['nilai'] > item2['nilai']:
+                return True
     return False
 
 def tujuan_preferensi(tujuan, dataLandmarksDF=None, dataTransportDF=None):
     filtered_and_sorted_dataframe = pd.DataFrame()
+    # if tujuan == "":
+    #     result = dataLandmarksDF
+    #     sorted_result_transport = dataTransportDF.sort_values(
+    #         by='linearDistance')
+    #     sorted_result_shopping = dataLandmarksDF[dataLandmarksDF['poiType']=="ShoppingMall"].sort_values(
+    #         by='linearDistance')
+    #     result['isNature'] = result[['poiName']].apply(extract_distances_and_check_nature)
+    #     result['isHistorical'] = result[['poiType']].apply(extract_distances_and_check_historical)
+    #     sorted_result = result.sort_values(
+    #         by='linearDistance')
+        
+    #     filtered_dataframe_combined = sorted_result_transport.merge(sorted_result, on='hotelId', how='left', indicator=True)
     if tujuan == "transit":        
         sorted_result = dataTransportDF.sort_values(
             by='linearDistance')

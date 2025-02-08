@@ -104,12 +104,29 @@ def getHotelList():
         
         return data_result.to_json()
 
-@app.route('/searchLoc', methods=['GET'])
+@app.route('/searchLoc', methods=['POST'])
 def searchLoc():
     location = request.form.get("location")
     dataLocation = getPlaces(location)
     return dataLocation
 
+@app.route('/detailHotel', methods=['POST','GET'])
+def getHotelDetails():
+    hotelId = request.form.get("hotelId")
+    entityId = request.form.get("entityId")
+    dataDetail = getDetail(hotelID=hotelId, entityID=entityId)
+    dataDetailDF = pd.DataFrame(dataDetail['data'])        
+    return dataDetailDF.to_json()
+
+@app.route('/detailHotelNearby', methods=['POST','GET'])
+def getHotelNearby():
+    hotelId = request.form.get("hotelId")
+    entityId = request.form.get("entityId")
+    coordinates = (request.form.get("coordinates")).split(",")
+    dataLandmark = getNearbyPlaces(hotelID=hotelId, cityID=entityId, coordinates=coordinates)
+    dataLandmarkTransportDF = pd.DataFrame(dataLandmark['data']['transportations'])
+    dataLandmarkPOIDF = pd.DataFrame(dataLandmark['data']['poiInfo'])
+    return dataLandmarkPOIDF.to_json(), dataLandmarkTransportDF.to_json()
 
 if __name__ == '__main__':
     app.run(debug=True)

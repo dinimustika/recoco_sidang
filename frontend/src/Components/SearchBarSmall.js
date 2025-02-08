@@ -37,7 +37,7 @@ function SearchBarSmall() {
     event.preventDefault();
     try {
       await axios.post(
-        "http://localhost:5000/cariData",
+        "http://localhost:5000/getHotelList",
         forms.getFieldsValue()
       ).then(function(response){
         setValues(response.data);

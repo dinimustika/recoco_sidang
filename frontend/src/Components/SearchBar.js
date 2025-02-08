@@ -9,6 +9,7 @@ import {
   Button,
   Row,
   Col,
+  AutoComplete,
 } from "antd";
 
 import moment from "moment";
@@ -33,13 +34,26 @@ function SearchBar() {
     updateFormData(name, value);
   };
 
-  const handleSubmit = async () => {    
+  const handleSubmit = async () => {
     try {
+      const str = forms.getFieldValue('location');
+      const result = str.match(/~(.+)$/);
+      const params = new URLSearchParams();
+      params.append("guests", forms.getFieldValue('guests') === undefined ? 2 : forms.getFieldValue('guests'));
+      params.append("rooms", forms.getFieldValue('rooms') === undefined ? 2 : forms.getFieldValue('rooms'));
+      params.append("location", result[1]);
+      params.append("checkin", forms.getFieldValue('tgl_masuk')[0].format('YYYY-MM-DD'));
+      params.append("checkout", forms.getFieldValue('tgl_masuk')[1].format('YYYY-MM-DD'));
+      params.append("preferensi", forms.getFieldValue('tujuan'))
       await axios
-        .post("http://localhost:5000/cariData", forms.getFieldsValue())
+        .post("http://localhost:5000/getHotelList", params, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded", // Form URL encoded
+          },
+        })
         .then(function (response) {
           setValues(response.data);
-          navigate("/HotelList", { state: {data: response.data} });
+          navigate("/HotelList", { state: { data: response.data } });
         });
     } catch (error) {
       console.error("There was an error submitting the form!", error);
@@ -47,7 +61,34 @@ function SearchBar() {
   };
 
   const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
+    console.log("Failed:", errorInfo);
+  };
+
+  const [options, setOptions] = React.useState([]);
+  const handleSearch = (value) => {
+    setTimeout(() => {
+      const params = new URLSearchParams();
+      params.append("location", value);
+      try {
+        axios
+          .post("http://localhost:5000/searchLoc", params, {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded", // Form URL encoded
+            },
+          })
+          .then((response) => {
+            const data = response['data'].data
+            const transformedOptions = Object.keys(data).map(key => ({
+              label: `${data[key].entityName}, ${data[key].hierarchy.replace(/\|/g, ', ')}~${data[key].entityId}`,  // Assuming 'entityName' exists in the data object
+              value: `${data[key].entityName}, ${data[key].hierarchy.replace(/\|/g, ', ')}~${data[key].entityId}`,    // Assuming 'entityId' exists in the data object
+            }));
+            console.log(transformedOptions)            
+            setOptions(transformedOptions);
+          });
+      } catch (error) {
+        console.error("There was an error submitting the form!", error);
+      }
+    }, 3000);
   };
 
   return (
@@ -84,7 +125,7 @@ function SearchBar() {
                 name="location"
                 rules={[{ required: true, message: "Locations is required" }]}
               >
-                <Input />
+                <AutoComplete onSearch={handleSearch} options={options} />
               </Form.Item>
             </Card.Grid>
             <Card.Grid style={gridStyle}>
@@ -95,7 +136,7 @@ function SearchBar() {
                   { required: true, message: "Check-in/out date is required" },
                 ]}
               >
-                <RangePicker format={dateFormat} />
+                <RangePicker />
               </Form.Item>
             </Card.Grid>
             <Card.Grid style={gridStyle}>
@@ -124,10 +165,7 @@ function SearchBar() {
                 </Col>
                 <Col span={12}>
                   <br />
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                  >
+                  <Button type="primary" htmlType="submit">
                     Search
                   </Button>
                 </Col>
